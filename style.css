@@ -1,0 +1,31 @@
+* { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: #f4f7f6; margin: 0; padding: 10px; color: #333; }
+.container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+header { text-align: center; border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 20px; }
+header h1 { margin: 0; font-size: 24px; color: #0056b3; }
+.header-info { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.input-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; }
+.input-group label { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+.input-group input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+.area-section { border: 1px solid #ddd; margin-bottom: 15px; border-radius: 5px; overflow: hidden; }
+.area-title { background: #0056b3; color: white; padding: 10px; font-weight: bold; font-size: 16px; }
+.critical-tag { background: #ff4d4d; color: white; padding: 2px 6px; border-radius: 3px; font-size: 12px; margin-left: 10px; }
+.question-item { padding: 15px; border-bottom: 1px solid #eee; }
+.question-text { font-weight: 600; margin-bottom: 10px; }
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; }
+.checkbox-group label { display: flex; align-items: center; gap: 5px; font-size: 14px; cursor: pointer; }
+.dashboard { background: #eef2f5; padding: 20px; border-radius: 8px; margin-top: 20px; }
+.score-board { display: flex; justify-content: space-between; font-size: 18px; }
+.warning { background: #ffcccc; color: #cc0000; padding: 10px; margin-top: 10px; border-radius: 4px; text-align: center; font-weight: bold; }
+.actions { margin-top: 20px; display: flex; gap: 10px; }
+button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+.btn-calc { background: #28a745; }
+.btn-print { background: #17a2b8; }
+button:hover { opacity: 0.9; }
+
+/* Tampilan khusus untuk Cetak/Save to PDF */
+@media print {
+    .actions { display: none; }
+    body { background: white; }
+    .container { box-shadow: none; padding: 0; }
+}

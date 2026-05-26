@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Vendor Man Power - KPS & MKS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Form Audit Vendor Man Power</h1>
+            <p>PT. Karya Putra Sangkuriang - PPIC Warehouse & Delivery</p>
+        </header>
+
+        <section class="header-info">
+            <div class="input-group">
+                <label>Nama Vendor:</label>
+                <input type="text" value="PT. Mukti Kencana Sukses" readonly>
+            </div>
+            <div class="input-group">
+                <label>Tanggal Audit:</label>
+                <input type="date" id="tanggalAudit">
+            </div>
+            <div class="input-group">
+                <label>Auditor:</label>
+                <input type="text" id="namaAuditor" placeholder="Nama Auditor">
+            </div>
+        </section>
+
+        <form id="auditForm">
+            <div id="questionsContainer"></div>
+            
+            <div class="dashboard">
+                <h2>Dashboard Hasil Audit</h2>
+                <div class="score-board">
+                    <div class="score-item">
+                        <span>Total Score:</span>
+                        <strong id="totalScore">0.00</strong> / 50
+                    </div>
+                    <div class="score-item">
+                        <span>Grade & Status:</span>
+                        <strong id="finalStatus">-</strong>
+                    </div>
+                </div>
+                <div id="criticalWarning" class="warning" style="display: none;">
+                    ⚠️ GAGAL: Terdapat nilai 0 pada Area Kritis!
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="button" onclick="calculateScore()" class="btn-calc">Hitung Nilai</button>
+                <button type="button" onclick="window.print()" class="btn-print">Cetak / Simpan PDF</button>
+            </div>
+        </form>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
