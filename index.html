@@ -3,57 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Vendor Man Power - KPS & MKS</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Form Audit Vendor Man Power - KPS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .critical-badge { background-color: #fee2e2; color: #991b1b; }
+        .sticky-footer { bottom: 0; box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1); }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Form Audit Vendor Man Power</h1>
-            <p>PT. Karya Putra Sangkuriang - PPIC Warehouse & Delivery</p>
-        </header>
+<body class="text-slate-800 pb-24">
 
-        <section class="header-info">
-            <div class="input-group">
-                <label>Nama Vendor:</label>
-                <input type="text" value="PT. Mukti Kencana Sukses" readonly>
-            </div>
-            <div class="input-group">
-                <label>Tanggal Audit:</label>
-                <input type="date" id="tanggalAudit">
-            </div>
-            <div class="input-group">
-                <label>Auditor:</label>
-                <input type="text" id="namaAuditor" placeholder="Nama Auditor">
-            </div>
-        </section>
+    <header class="bg-white shadow-sm py-4 px-6 mb-6">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-2xl font-bold text-slate-900">Form Audit Vendor Man Power</h1>
+            <p class="text-sm text-slate-500">PT. Karya Putra Sangkuriang - PPIC Warehouse & Delivery</p>
+        </div>
+    </header>
 
-        <form id="auditForm">
-            <div id="questionsContainer"></div>
-            
-            <div class="dashboard">
-                <h2>Dashboard Hasil Audit</h2>
-                <div class="score-board">
-                    <div class="score-item">
-                        <span>Total Score:</span>
-                        <strong id="totalScore">0.00</strong> / 50
-                    </div>
-                    <div class="score-item">
-                        <span>Grade & Status:</span>
-                        <strong id="finalStatus">-</strong>
-                    </div>
+    <main class="max-w-4xl mx-auto px-4">
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 mb-6">
+            <h2 class="text-lg font-semibold mb-4 border-b pb-2">Informasi Audit</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Nama Vendor</label>
+                    <input type="text" value="PT. Mukti Kencana Sukses" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm border p-2 bg-slate-50" readonly>
                 </div>
-                <div id="criticalWarning" class="warning" style="display: none;">
-                    ⚠️ GAGAL: Terdapat nilai 0 pada Area Kritis!
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Tanggal Audit</label>
+                    <input type="date" id="audit_date" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Auditor (KPS)</label>
+                    <input type="text" id="auditor_name" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Lokasi Audit</label>
+                    <input type="text" id="audit_location" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500">
                 </div>
             </div>
+        </div>
 
-            <div class="actions">
-                <button type="button" onclick="calculateScore()" class="btn-calc">Hitung Nilai</button>
-                <button type="button" onclick="window.print()" class="btn-print">Cetak / Simpan PDF</button>
+        <div id="questions_container"></div>
+
+    </main>
+
+    <div class="fixed sticky-footer w-full bg-white border-t border-slate-200 p-4 z-50">
+        <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <p class="text-sm text-slate-500">Total Score (Max: 50)</p>
+                <p class="text-3xl font-bold text-slate-900" id="grand_total">0.0</p>
             </div>
-        </form>
+            <div class="text-right">
+                <p class="text-sm text-slate-500">Grade & Status</p>
+                <p class="text-xl font-bold text-slate-400" id="final_grade">-</p>
+            </div>
+            <button onclick="window.print()" class="bg-slate-900 text-white px-6 py-2 rounded-md hover:bg-slate-800 transition font-medium">
+                Simpan PDF / Cetak
+            </button>
+        </div>
     </div>
-    <script src="app.js"></script>
+
+    <script>
+        const auditData = [
+            {
+                title: "Legalitas & Profil Perusahaan",
+                isCritical: true,
+                items: [
+                    "Apakah perusahaan memiliki legalitas usaha yang lengkap dan masih berlaku?",
+                    "Apakah perusahaan memiliki izin usaha penyediaan jasa tenaga kerja (SIUJPTK) yang aktif?",
+                    "Apakah ada Perjanjian Kerja Sama (PKS/SPK) tertulis dengan KPS yang masih berlaku?",
+                    "Apakah perusahaan memiliki NPWP aktif dan laporan pajak terkini?"
+                ]
+            },
+            {
+                title: "Sistem Manajemen SDM",
+                isCritical: false,
+                items: [
+                    "Apakah ada struktur organisasi yang jelas beserta PIC yang bertanggung jawab untuk penempatan di KPS?",
+                    "Apakah ada SOP/manual internal terkait pengelolaan tenaga kerja yang ditempatkan di klien?",
+                    "Apakah ada sistem pencatatan dan database seluruh TK aktif yang ditempatkan di KPS?",
+                    "Apakah ada mekanisme review & pembaruan kontrak kerja TK secara berkala sebelum kadaluarsa?"
+                ]
+            },
+            {
+                title: "Rekrutmen & Seleksi",
+                isCritical: false,
+                items: [
+                    "Apakah ada prosedur baku rekrutmen Driver & Helper yang ditetapkan secara tertulis?",
+                    "Apakah ada standar kualifikasi minimum yang dijadikan acuan seleksi (usia, SIM, pengalaman, kesehatan)?",
+                    "Apakah ada proses seleksi tertulis sebelum penempatan (tes, interview, medical check)?",
+                    "Apakah ada pool/database kandidat cadangan yang selalu diperbarui untuk kebutuhan mendesak?"
+                ]
+            },
+            {
+                title: "Legalitas & Dokumen TK",
+                isCritical: true,
+                items: [
+                    "Apakah setiap Driver memiliki SIM aktif sesuai kelas kendaraan yang dioperasikan (min. SIM B1/B2)?",
+                    "Apakah seluruh TK yang ditempatkan memiliki SKCK yang masih berlaku?",
+                    "Apakah seluruh TK terdaftar aktif di BPJS Ketenagakerjaan & BPJS Kesehatan?",
+                    "Apakah kontrak kerja (PKWT/PKWTT) setiap TK sudah ditandatangani, tersimpan, dan tidak kadaluarsa?"
+                ]
+            },
+            {
+                title: "Pelatihan & Kompetensi",
+                isCritical: false,
+                items: [
+                    "Apakah ada program onboarding/orientasi wajib sebelum TK ditempatkan di KPS?",
+                    "Apakah ada pelatihan safety driving untuk Driver sebelum dan selama penempatan?",
+                    "Apakah ada pelatihan SOP bongkar-muat (loading/unloading) untuk Helper?",
+                    "Apakah ada sistem evaluasi kompetensi berkala untuk TK yang sudah ditempatkan?"
+                ]
+            },
+            {
+                title: "Kepatuhan K3 & APD",
+                isCritical: true,
+                items: [
+                    "Apakah ada prosedur K3 yang wajib dipatuhi oleh seluruh Driver & Helper saat bertugas?",
+                    "Apakah vendor menjamin penyediaan APD standar untuk seluruh TK yang ditempatkan?",
+                    "Apakah ada sistem pencatatan dan pelaporan insiden/kecelakaan kerja TK yang ditempatkan?",
+                    "Apakah ada evaluasi berkala terkait kepatuhan K3 dan kondisi APD TK di lapangan?"
+                ]
+            },
+            {
+                title: "Ketersediaan & Pemenuhan MP",
+                isCritical: false,
+                items: [
+                    "Apakah ada mekanisme penerimaan dan konfirmasi permintaan man power dari KPS secara resmi?",
+                    "Apakah ada jaminan pemenuhan jumlah TK sesuai jadwal dan kebutuhan yang disepakati?",
+                    "Apakah ada SLA (Service Level Agreement) terkait waktu respons dan pemenuhan man power?",
+                    "Apakah ada laporan aktual pemenuhan man power yang disampaikan rutin kepada KPS?"
+                ]
+            },
+            {
+                title: "Kontrol Kehadiran & Kedisiplinan",
+                isCritical: false,
+                items: [
+                    "Apakah ada sistem pencatatan kehadiran (absensi) Driver & Helper secara aktual setiap hari?",
+                    "Apakah ada mekanisme pelaporan ketidakhadiran TK kepada KPS secara proaktif (min. H-1 atau 1 jam sebelum shift)?",
+                    "Apakah ada prosedur penanganan pelanggaran disiplin (terlambat, mangkir, perilaku tidak sesuai)?",
+                    "Apakah ada rekap dan evaluasi kedisiplinan TK yang dilaporkan kepada KPS secara berkala?"
+                ]
+            },
+            {
+                title: "Penanganan Abnormality & Evaluasi Kinerja",
+                isCritical: true,
+                items: [
+                    "Apakah ada prosedur penggantian TK darurat (contingency plan) jika driver/helper tidak hadir mendadak?",
+                    "Apakah ada jalur komunikasi resmi dan struktur eskalasi yang jelas antara MKS dan KPS saat terjadi abnormality?",
+                    "Apakah ada sistem pencatatan dan tindak lanjut atas keluhan/temuan dari KPS terkait performa TK?",
+                    "Apakah ada mekanisme evaluasi kinerja vendor secara berkala antara KPS dan MKS (min. 3 bulan sekali)?"
+                ]
+            },
+            {
+                title: "Tanggung Jawab Driver — Perawatan Kendaraan",
+                isCritical: true,
+                items: [
+                    "Apakah vendor memastikan driver memahami dan menjalankan prosedur P2H (Pemeriksaan Pra & Pasca Harian) kendaraan KPS?",
+                    "Apakah ada prosedur pelaporan kerusakan/abnormality kendaraan yang wajib dilakukan driver kepada KPS?",
+                    "Apakah vendor memiliki aturan tertulis terkait larangan penggunaan kendaraan KPS di luar kepentingan operasional?",
+                    "Apakah ada mekanisme pertanggungjawaban (sanksi/klaim) jika terjadi kerusakan kendaraan akibat kelalaian driver?"
+                ]
+            }
+        ];
+
+        const criteriaLabels = ["Prosedur (SOP/IK)", "Implementasi (Checksheet)", "Kontrol (Dashboard)", "Evaluasi (Report)"];
+
+        function renderForm() {
+            const container = document.getElementById('questions_container');
+            
+            auditData.forEach((area, aIndex) => {
+                let criticalTag = area.isCritical ? `<span class="text-xs font-bold px-2 py-1 rounded critical-badge ml-2">★ AREA KRITIS</span>` : '';
+                
+                let areaHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 mb-6">
+                    <div class="flex justify-between items-center border-b pb-3 mb-4">
+                        <h3 class="text-lg font-bold text-slate-800">Area ${aIndex + 1}: ${area.title} ${criticalTag}</h3>
+                        <div class="text-right">
+                            <span class="text-sm text-slate-500">Skor Area: </span>
+                            <span class="text-xl font-bold text-blue-600" id="score_area_${aIndex}">0.0</span>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                `;
+
+                area.items.forEach((item, iIndex) => {
+                    areaHTML += `
+                        <div class="bg-slate-50 p-4 rounded border border-slate-100">
+                            <p class="text-sm font-medium text-slate-800 mb-3">${iIndex + 1}. ${item}</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    `;
+                    
+                    criteriaLabels.forEach((label, cIndex) => {
+                        areaHTML += `
+                            <label class="flex items-center space-x-2 cursor-pointer bg-white p-2 rounded border border-slate-200 hover:border-blue-400 transition">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                                    id="cb_${aIndex}_${iIndex}_${cIndex}" onchange="calculateScore()">
+                                <span class="text-xs text-slate-600 font-medium">${label}</span>
+                            </label>
+                        `;
+                    });
+
+                    areaHTML += `
+                            </div>
+                        </div>
+                    `;
+                });
+
+                areaHTML += `</div></div>`;
+                container.innerHTML += areaHTML;
+            });
+        }
+
+        function calculateScore() {
+            let grandTotal = 0;
+            let hasCriticalZero = false;
+
+            auditData.forEach((area, aIndex) => {
+                let areaTotalPoints = 0;
+                
+                area.items.forEach((item, iIndex) => {
+                    let checkedCount = 0;
+                    for(let c=0; c<4; c++) {
+                        if(document.getElementById(`cb_${aIndex}_${iIndex}_${c}`).checked) checkedCount++;
+                    }
+                    
+                    let point = 0;
+                    if(checkedCount === 4) point = 5;
+                    else if(checkedCount === 3) point = 4;
+                    else if(checkedCount === 2) point = 3;
+                    else if(checkedCount === 1) point = 2;
+                    else if(checkedCount === 0) point = 0;
+
+                    if(area.isCritical && point === 0) {
+                        hasCriticalZero = true;
+                    }
+                    areaTotalPoints += point;
+                });
+
+                let areaScore = areaTotalPoints / 4;
+                grandTotal += areaScore;
+                document.getElementById(`score_area_${aIndex}`).innerText = areaScore.toFixed(1);
+            });
+
+            document.getElementById('grand_total').innerText = grandTotal.toFixed(1);
+
+            let finalGradeEl = document.getElementById('final_grade');
+            
+            if (grandTotal >= 46 && !hasCriticalZero) {
+                finalGradeEl.innerHTML = `<span class="text-green-600">GRADE A - PASS</span>`;
+            } else if (grandTotal >= 40 && grandTotal <= 45 && !hasCriticalZero) {
+                finalGradeEl.innerHTML = `<span class="text-yellow-600">GRADE B - CONDITIONAL</span>`;
+            } else {
+                let reason = hasCriticalZero ? " (Nilai 0 di Area Kritis)" : "";
+                finalGradeEl.innerHTML = `<span class="text-red-600">GRADE C - NOT PASS${reason}</span>`;
+            }
+        }
+
+        // Initialize Form
+        window.onload = renderForm;
+    </script>
 </body>
 </html>
